@@ -21,7 +21,9 @@ left:10px;
 background:#222;
 padding:15px;
 border-radius:10px;
-width:180px;
+width:200px;
+max-height:90vh;
+overflow:auto;
 }
 
 button{
@@ -35,6 +37,10 @@ label{
 display:block;
 margin-top:8px;
 }
+
+.section{
+margin-top:10px;
+}
 </style>
 </head>
 
@@ -42,11 +48,17 @@ margin-top:8px;
 
 <div id="ui">
 
-<b>Spawn</b>
+<div class="section">
+<b>Shapes</b>
 <button onclick="spawn('square')">Square</button>
 <button onclick="spawn('circle')">Circle</button>
 <button onclick="spawn('triangle')">Triangle</button>
-<button onclick="spawnImage('mirac')">Mirac</button>
+</div>
+
+<div class="section">
+<b>Images</b>
+<div id="imageButtons"></div>
+</div>
 
 <hr>
 
@@ -139,9 +151,9 @@ World.add(world,body);
 
 }
 
-/* spawn image square */
+/* spawn image */
 
-function spawnImage(){
+function spawnImage(name){
 
 let bounce = parseFloat(document.getElementById("bounce").value);
 
@@ -151,7 +163,7 @@ let body = Bodies.rectangle(x,100,80,80,{
 restitution:bounce,
 render:{
 sprite:{
-texture:"images/mirac.png",
+texture:"images/" + name + ".png",
 xScale:0.4,
 yScale:0.4
 }
@@ -176,11 +188,34 @@ paused=true;
 
 }
 
-/* gravity slider */
+/* gravity */
 
 document.getElementById("gravity").oninput=function(){
 engine.gravity.y=this.value;
 };
+
+/* IMAGE LIST (add new images here) */
+
+const images = [
+"mirac",
+"luuk"
+];
+
+/* auto create buttons */
+
+const container = document.getElementById("imageButtons");
+
+images.forEach(name => {
+
+let btn = document.createElement("button");
+
+btn.innerText = name.charAt(0).toUpperCase() + name.slice(1);
+
+btn.onclick = () => spawnImage(name);
+
+container.appendChild(btn);
+
+});
 
 </script>
 
