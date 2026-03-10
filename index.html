@@ -1,1 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>2D Physics Sandbox</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:#111;
+color:white;
+overflow:hidden;
+}
+
+#ui{
+position:fixed;
+top:10px;
+left:10px;
+background:#222;
+padding:15px;
+border-radius:10px;
+width:180px;
+}
+
+button{
+margin:3px;
+padding:6px 10px;
+cursor:pointer;
+width:100%;
+}
+
+label{
+display:block;
+margin-top:8px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="ui">
+
+<b>Spawn</b>
+<button onclick="spawn('square')">Square</button>
+<button onclick="spawn('circle')">Circle</button>
+<button onclick="spawn('triangle')">Triangle</button>
+<button onclick="spawnBlob()">Soft Blob</button>
+
+<hr>
+
+<button onclick="togglePause()">Pause / Resume</button>
+<button onclick="toggleEraser()">Eraser Tool</button>
+
+<label>Gravity</label>
+<input id="gravity" type="range" min="0" max="2" step="0.1" value="1">
+
+<label>Bounciness</label>
+<input id="bounce" type="range" min="0" max="1" step="0.05" value="0.5">
+
+<label>Softness (Air)</label>
+<input id="soft" type="range" min="0" max="0.1" step="0.005" value="0.01">
+
+</div>
+
+<script>
+
+const {
+Engine, Render, Runner, Bodies, World,
+Mouse, MouseConstraint, Composites, Composite, Events
+} = Matter;
+
+const engine = Engine.create();
+const world = engine.world;
+
+const render = Render.create({
+element: document.body,
+engine: engine,
+options:{
+width:window.innerWidth,
+height:window.innerHeight,
+wireframes:false,
+background:"#111"
+}
+});
+
+Render.run(render);
+
+const runner = Runner.create();
+Runner.run(runner, engine);
+
+let paused = false;
+let eraserMode = false;
+
+/* ground */
+
+const ground = Bodies.rectangle(
+window.innerWidth/2,
+window.innerHeight-20,
+window.innerWidth,
+40,
+{isStatic:true}
+);
+
+World.add(world,ground);
+
+/* mouse */
+
+const mouse = Mouse.create(render.canvas);
+
+const mouseConstraint = MouseConstraint.create(engine,{
+mouse:mouse
+});
+
+World.add(world,mouseConstraint);
+
+/* spawn shapes */
+
+function spawn(type){
+
+let bounce = parseFloat(document.getElementById("bounce").value);
+let soft = parseFloat(document.getElementById("soft").value);
+
+let options={
+restitution:bounce,
+frictionAir:soft
+};
+
+let x = Math.random()*window.innerWidth;
+let body;
+
+if(type==="square"){
+body = Bodies.rectangle(x,100,60,60,options);
+}
+
+if(type==="circle"){
+body = Bodies.circle(x,100,30,options);
+}
+
+if(type==="triangle"){
+body = Bodies.polygon(x,100,3,40,options);
+}
+
+World.add(world,body);
+}
+
+/* soft body blob */
+
+function spawnBlob(){
+
+let x = Math.random()*window.innerWidth;
+
+let blob = Composites.softBody(
+x,
+100,
+5,
+5,
+10,
+10,
+true,
+20,
+{
+friction:0.0001,
+restitution:0.9,
+render:{fillStyle:"#66ffcc"}
+}
+);
+
+Composite.add(world,blob);
+}
+
+/* pause */
+
+function togglePause(){
+
+if(paused){
+Runner.run(runner,engine);
+paused=false;
+}else{
+Runner.stop(runner);
+paused=true;
+}
+
+}
+
+/* eraser */
+
+function toggleEraser(){
+eraserMode = !eraserMode;
+}
+
+Events.on(mouseConstraint,"mousedown",function(event){
+
+if(!eraserMode) return;
+
+let mousePos = event.mouse.position;
+
+let bodies = Composite.allBodies(world);
+
+for(let i=0;i<bodies.length;i++){
+
+let body = bodies[i];
+
+if(Matter.Bounds.contains(body.bounds,mousePos)){
+World.remove(world,body);
+break;
+}
+
+}
+
+});
+
+/* sliders */
+
+document.getElementById("gravity").oninput=function(){
+engine.gravity.y=this.value;
+};
+
+</script>
+
+</body>
+</html>
