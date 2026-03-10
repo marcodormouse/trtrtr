@@ -46,6 +46,7 @@ margin-top:8px;
 <button onclick="spawn('square')">Square</button>
 <button onclick="spawn('circle')">Circle</button>
 <button onclick="spawn('triangle')">Triangle</button>
+<button onclick="spawnImage('mirac')">Image</button>
 
 <hr>
 
@@ -130,6 +131,16 @@ if(type==="circle"){
 body = Bodies.circle(x,100,30,options);
 }
 
+if(type==="triangle"){
+body = Bodies.polygon(x,100,3,40,options);
+}
+
+World.add(world,body);
+
+}
+
+/* spawn image square */
+
 function spawnImage(){
 
 let bounce = parseFloat(document.getElementById("bounce").value);
@@ -149,13 +160,6 @@ yScale:0.4
 
 World.add(world,body);
 
-}
-
-if(type==="triangle"){
-body = Bodies.polygon(x,100,3,40,options);
-}
-
-World.add(world,body);
 }
 
 /* pause */
