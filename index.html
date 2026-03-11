@@ -74,10 +74,7 @@ margin-top:10px;
 
 <script>
 
-const {
-Engine, Render, Runner, Bodies, World,
-Mouse, MouseConstraint
-} = Matter;
+const {Engine, Render, Runner, Bodies, World, Mouse, MouseConstraint} = Matter;
 
 const engine = Engine.create();
 const world = engine.world;
@@ -112,13 +109,19 @@ window.innerWidth,
 
 World.add(world,ground);
 
-/* mouse */
+/* mouse dragging */
 
 const mouse = Mouse.create(render.canvas);
 
 const mouseConstraint = MouseConstraint.create(engine,{
-mouse:mouse
+mouse:mouse,
+constraint:{
+stiffness:0.2,
+render:{visible:false}
+}
 });
+
+render.mouse = mouse;
 
 World.add(world,mouseConstraint);
 
@@ -194,7 +197,7 @@ document.getElementById("gravity").oninput=function(){
 engine.gravity.y=this.value;
 };
 
-/* IMAGE LIST (add new images here) */
+/* image list */
 
 const images = [
 "mirac",
